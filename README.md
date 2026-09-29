@@ -49,18 +49,18 @@ No installation, build tools, or `node_modules` required:
 
 ---
 
-## ⚙️ Enabling GitHub Pages
+## ⚙️ Enabling GitHub Pages (For Forks)
 
-To activate GitHub Pages for your own fork or this repository:
+If you fork this repository and want to host your own version via GitHub Pages:
 
-1. Navigate to the repository on GitHub: [github.com/olavxxx/git-worktree](https://github.com/olavxxx/git-worktree)
+1. Navigate to your forked repository on GitHub (`https://github.com/<your-username>/git-worktree`).
 2. Go to **Settings** &rarr; **Pages** (under *Code and automation* in the left sidebar).
 3. Under **Build and deployment**:
    - **Source**: Select `Deploy from a branch`
    - **Branch**: Select `main` and root directory `/ (root)`
 4. Click **Save**.
 5. Within 1–2 minutes, your site will be live at:  
-   🔗 **`https://olavxxx.github.io/git-worktree/`**
+   🔗 **`https://<your-username>.github.io/git-worktree/`**
 
 ---
 
