@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Git Worktree & AI Agents - Complete Flow</title>
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #1e293b;
+            --card-border: #334155;
+            --accent: #38bdf8;
+            --accent-glow: rgba(56, 189, 248, 0.2);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --code-bg: #090d16;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        h1, p.subtitle, .flow-container, .page-footer {
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 {
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+            text-align: center;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        p.subtitle a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        p.subtitle a:hover {
+            text-decoration: underline;
+        }
+
+        .flow-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 850px;
+        }
+
+        .node {
+            background-color: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        .node:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .node-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .node-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .badge {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        .arrow-icon {
+            color: var(--text-muted);
+            transition: transform 0.3s ease;
+        }
+
+        .node.active .arrow-icon {
+            transform: rotate(90deg);
+            color: var(--accent);
+        }
+
+        .node-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .node.active .node-content {
+            max-height: 1800px;
+            margin-top: 1rem;
+            border-top: 1px solid var(--card-border);
+            padding-top: 1rem;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 0.75rem 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            color: #e2e8f0;
+            font-family: monospace;
+            font-size: 0.9rem;
+            margin: 0.75rem 0;
+            border: 1px solid #1e293b;
+        }
+
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .compare-table th, .compare-table td {
+            border: 1px solid var(--card-border);
+            padding: 0.6rem;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .compare-table th {
+            background-color: rgba(255, 255, 255, 0.03);
+            color: var(--accent);
+        }
+
+        .controls-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            background-color: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .controls-table th, .controls-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--card-border);
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .controls-table th {
+            background-color: rgba(56, 189, 248, 0.05);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .controls-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .controls-table select, .controls-table input {
+            background-color: var(--code-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .inline-radios {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .radio-label input {
+            accent-color: var(--accent);
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+        }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .config-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .config-field.full {
+            grid-column: span 2;
+        }
+
+        .config-field label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .config-field input, .config-field select {
+            background-color: var(--code-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 0.5rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .faq-item {
+            margin-bottom: 1.25rem;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 0.3rem;
+        }
+
+        .page-footer {
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+            align-items: center;
+        }
+
+        .page-footer a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .page-footer a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="starfield"></canvas>
+
+    <h1 id="i18n-title">Git Worktree & AI Agents</h1>
+    <p class="subtitle">
+        <span id="i18n-subtitle">Interactive guide for parallel workflow with IntelliJ and CLI agents.</span> 
+        | <a href="https://git-scm.com/docs/git-worktree" target="_blank" id="i18n-docs-link">Official Git Worktree Documentation</a>
+    </p>
+
+    <div class="flow-container">
+        
+        <!-- Boks 0: Globalt oppsett -->
+        <div class="node active" onclick="toggleNode(this, event)">
+            <div class="node-header">
+                <div class="node-title">
+                    <span id="i18n-box0-title">0. Setup & Environment (Start here)</span>
+                    <span class="badge" id="i18n-badge-config">Configuration</span>
+                </div>
+                <div class="arrow-icon">▶</div>
+            </div>
+            <div class="node-content" onclick="event.stopPropagation()">
+                <span id="i18n-box0-desc">Customize paths and OS so all terminal commands below are automatically tailored for your machine:</span>
+                
+                <div class="config-grid">
+                    <div class="config-field">
+                        <label id="i18n-lang-label">Language / Språk:</label>
+                        <select id="langSelect" onchange="changeLanguage()">
+                            <option value="en" selected>English</option>
+                            <option value="no">Norsk</option>
+                        </select>
+                    </div>
+
+                    <div class="config-field">
+                        <label id="i18n-os-label">OS / Path type:</label>
+                        <select id="osType" onchange="onOsChange()">
+                            <option value="windows" selected>Windows (CMD / PowerShell / Git Bash)</option>
+                            <option value="unix">macOS / Linux (Unix)</option>
+                        </select>
+                    </div>
+
+                    <div class="config-field">
+                        <label id="i18n-reponame-label">Root repository folder name:</label>
+                        <input type="text" id="repoNameInput" value="git-worktree" oninput="updateAllCommands()">
+                    </div>
+
+                    <div class="config-field">
+                        <label id="i18n-rootpath-label">Root path:</label>
+                        <input type="text" id="rootPathInput" value="c:\dev\repos\" oninput="updateAllCommands()">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boks 1: Scenario-velger -->
+        <div class="node" onclick="toggleNode(this, event)">
+            <div class="node-header">
+                <div class="node-title">
+                    <span id="i18n-box1-title">1. Why use Worktree? (Select scenario)</span>
+                    <span class="badge" id="i18n-badge-problem">Problem Statement</span>
+                </div>
+                <div class="arrow-icon">▶</div>
+            </div>
+            <div class="node-content" onclick="event.stopPropagation()">
+                <div style="background-color: rgba(255, 255, 255, 0.03); border: 1px solid var(--card-border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <label class="radio-label">
+                            <input type="radio" name="scenarioType" value="agent" checked onchange="onScenarioChange()">
+                            <span id="i18n-scen-a">Scenario A: Work in parallel with an AI agent</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="scenarioType" value="incident" onchange="onScenarioChange()">
+                            <span id="i18n-scen-b">Scenario B: Production incident during unfinished work</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="scenarioType" value="review" onchange="onScenarioChange()">
+                            <span id="i18n-scen-c">Scenario C: Quickly review a colleague's PR</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="scenarioType" value="compare" onchange="updateAllCommands()">
+                            <span id="i18n-scen-d">Scenario D: Side-by-side version comparison</span>
+                        </label>
+                    </div>
+                </div>
+                <div id="scenario-desc"></div>
+            </div>
+        </div>
+
+        <!-- Boks 2: Kommandoer: Oppsett & Opprydding -->
+        <div class="node" onclick="toggleNode(this, event)">
+            <div class="node-header">
+                <div class="node-title">
+                    <span id="i18n-box2-title">2. Commands: Setup & Cleanup</span>
+                    <span class="badge" id="i18n-badge-terminal">Terminal</span>
+                </div>
+                <div class="arrow-icon">▶</div>
+            </div>
+            <div class="node-content" onclick="event.stopPropagation()">
+                
+                <table class="controls-table">
+                    <tr>
+                        <th id="i18n-table-newbranch">New branch? (-b)</th>
+                        <th id="i18n-table-type">Branch type</th>
+                        <th id="i18n-table-name">Branch name</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="inline-radios">
+                                <label class="radio-label">
+                                    <input type="radio" name="isNewBranch" value="yes" checked onchange="updateAllCommands()"> <span id="i18n-yes">Yes</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="isNewBranch" value="no" onchange="updateAllCommands()"> <span id="i18n-no">No</span>
+                                </label>
+                            </div>
+                        </td>
+                        <td>
+                            <select id="branchPrefix" onchange="updateAllCommands()">
+                                <option value="agent/">agent/</option>
+                                <option value="feature/">feature/</option>
+                                <option value="bugfix/">bugfix/</option>
+                                <option value="hotfix/">hotfix/</option>
+                                <option value="release/">release/</option>
+                                <option value="custom">Custom...</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="text" id="branchNameInput" value="upgrade-deps" placeholder="branch-name" oninput="updateAllCommands()">
+                        </td>
+                    </tr>
+                </table>
+
+                <span id="i18n-terminal-intro">Open your main folder terminal and run the following:</span>
+                <pre id="command-block-setup"></pre>
+
+                <pre id="command-block-list"></pre>
+            </div>
+        </div>
+
+        <!-- Boks 3: Commit, Push & Opprydding -->
+        <div class="node" onclick="toggleNode(this, event)">
+            <div class="node-header">
+                <div class="node-title">
+                    <span id="i18n-box3-title">3. Commit, Push & Cleanup (Bitbucket Flow)</span>
+                    <span class="badge" id="i18n-badge-flow">Flow & PR</span>
+                </div>
+                <div class="arrow-icon">▶</div>
+            </div>
+            <div class="node-content">
+                <span id="i18n-push-intro">When your task is complete, commit and push your code like this:</span>
+                <pre id="command-block-push"></pre>
+            </div>
+        </div>
+
+        <!-- Boks 4: FAQ & Teori -->
+        <div class="node" onclick="toggleNode(this, event)">
+            <div class="node-header">
+                <div class="node-title">
+                    <span id="i18n-box4-title">4. Benefits, Theory & FAQ</span>
+                    <span class="badge" id="i18n-badge-faq">FAQ & Theory</span>
+                </div>
+                <div class="arrow-icon">▶</div>
+            </div>
+            <div class="node-content" onclick="event.stopPropagation()">
+                
+                <div class="faq-item">
+                    <div class="faq-question" id="i18n-faq1-q">❓ What are the benefits of using Worktree instead of cloning the repository again?</div>
+                    <div id="i18n-faq1-a">
+                        <table class="compare-table" style="margin-top: 0.5rem; margin-bottom: 0.5rem;">
+                            <tr>
+                                <th id="i18n-th-feature">Feature</th>
+                                <th id="i18n-th-clone">Traditional Clone</th>
+                                <th id="i18n-th-worktree">Git Worktree</th>
+                            </tr>
+                            <tr>
+                                <td id="i18n-td-disk">Disk space</td>
+                                <td id="i18n-td-clone-disk">Copies the entire repo + `.git`</td>
+                                <td id="i18n-td-wt-disk">Shares database (minimal space)</td>
+                            </tr>
+                            <tr>
+                                <td id="i18n-td-deps">Dependencies</td>
+                                <td id="i18n-td-clone-deps">Must download/sync <code>npm</code>, <code>sbt</code>, <code>maven</code> etc. again (takes minutes).</td>
+                                <td id="i18n-td-wt-deps"><strong>Skip the wait!</strong> Can usually start code immediately.</td>
+                            </tr>
+                            <tr>
+                                <td id="i18n-td-sync">Git Sync</td>
+                                <td id="i18n-td-clone-sync">Each clone must be fetched separately.</td>
+                                <td id="i18n-td-wt-sync">Shared database = instant updates.</td>
+                            </tr>
+                        </table>
+                        <em>💡 Note on ports:</em> If running multiple instances and experiencing port conflicts (e.g. port 8080), this is easily handled via application profiles (e.g. an <code>%agent</code> profile or environment variables).
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" id="i18n-faq2-q">❓ Why do we use <code>git fetch</code> instead of <code>git pull</code>?</div>
+                    <div id="i18n-faq2-a"><code>git fetch</code> only downloads info about new branches and updates from remote (Bitbucket) into your local database without altering your files. <code>git pull</code> also attempts to merge updates directly into your active branch, which can cause unexpected merge conflicts while you work.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" id="i18n-faq3-q">❓ How do I update the worktree folder if the agent needs my latest code (or vice versa)?</div>
+                    <div id="i18n-faq3-a">
+                        Since all worktrees share the same underlying Git database, you can synchronize in two ways:<br>
+                        • <strong>Via remote (recommended):</strong> Commit and push changes from your folder, then run <code>git pull</code> or <code>git merge origin/main</code> in the other folder.<br>
+                        • <strong>Locally without pushing:</strong> Stand in e.g. the agent folder and merge your local branch directly:<br>
+                        <pre>git merge main</pre>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question" id="i18n-faq4-q">❓ Can I have multiple IntelliJ windows open simultaneously?</div>
+                    <div id="i18n-faq4-a">Yes! That is the whole point. You open your main folder in one IntelliJ window and the worktree folder (e.g. agent folder) in another window. They operate completely independently.</div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="page-footer">
+        <span>Created by <strong>Olav Alexander Mjelde</strong></span>
+        <div style="display: flex; gap: 0.75rem; align-items: center; justify-content: center; flex-wrap: wrap;">
+            <a href="https://www.linkedin.com/in/olav-alexander-mjelde-1256a822/" target="_blank">LinkedIn Profile</a>
+            <span>•</span>
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="license noopener">CC BY 4.0 License</a>
+        </div>
+    </div>
+
+    <script>
+        // --- TRANSLATION / i18n JSON DICTIONARY ---
+        const translations = {
+            en: {
+                title: "Git Worktree & AI Agents",
+                subtitle: "Interactive guide for parallel workflow with IntelliJ and CLI agents.",
+                docsLink: "Official Git Worktree Documentation",
+                box0Title: "0. Setup & Environment (Start here)",
+                badgeConfig: "Configuration",
+                box0Desc: "Customize paths and OS so all terminal commands below are automatically tailored for your machine:",
+                langLabel: "Language / Språk:",
+                osLabel: "OS / Path type:",
+                repoNameLabel: "Root repository folder name:",
+                rootPathLabel: "Root path:",
+                box1Title: "1. Why use Worktree? (Select scenario)",
+                badgeProblem: "Problem Statement",
+                scenA: "Scenario A: Work in parallel with an AI agent",
+                scenB: "Scenario B: Production incident during unfinished work",
+                scenC: "Scenario C: Quickly review a colleague's PR",
+                scenD: "Scenario D: Side-by-side version comparison",
+                box2Title: "2. Commands: Setup & Cleanup",
+                badgeTerminal: "Terminal",
+                tableNewBranch: "New branch? (-b)",
+                tableType: "Branch type",
+                tableName: "Branch name",
+                yes: "Yes",
+                no: "No",
+                terminalIntro: "Open your main folder terminal and run the following:",
+                box3Title: "3. Commit, Push & Cleanup (Bitbucket Flow)",
+                badgeFlow: "Flow & PR",
+                pushIntro: "When your task is complete, commit and push your code like this:",
+                box4Title: "4. Benefits, Theory & FAQ",
+                badgeFaq: "FAQ & Theory",
+                faq1Q: "❓ What are the benefits of using Worktree instead of cloning the repository again?",
+                thFeature: "Feature",
+                thClone: "Traditional Clone",
+                thWorktree: "Git Worktree",
+                tdDisk: "Disk space",
+                tdCloneDisk: "Copies the entire repo + `.git`",
+                tdWtDisk: "Shares database (minimal space)",
+                tdDeps: "Dependencies",
+                tdCloneDeps: "Must download/sync npm, sbt, maven etc. again (takes minutes).",
+                tdWtDeps: "Skip the wait! Can usually start code immediately.",
+                tdSync: "Git Sync",
+                tdCloneSync: "Each clone must be fetched separately.",
+                tdWtSync: "Shared database = instant updates.",
+                faq2Q: "❓ Why do we use git fetch instead of git pull?",
+                faq2A: "git fetch only downloads info about new branches and updates from remote (Bitbucket) into your local database without altering your files. git pull also attempts to merge updates directly into your active branch, which can cause unexpected merge conflicts while you work.",
+                faq3Q: "❓ How do I update the worktree folder if the agent needs my latest code (or vice versa)?",
+                faq3A: "Since all worktrees share the same underlying Git database, you can synchronize in two ways:<br>• Via remote (recommended): Commit and push changes from your folder, then run git pull or git merge origin/main in the other folder.<br>• Locally without pushing: Stand in e.g. the agent folder and merge your local branch directly:",
+                faq4Q: "❓ Can I have multiple IntelliJ windows open simultaneously?",
+                faq4A: "Yes! That is the whole point. You open your main folder in one IntelliJ window and the worktree folder (e.g. agent folder) in another window. They operate completely independently."
+            },
+            no: {
+                title: "Git Worktree & AI-Agenter",
+                subtitle: "Interaktiv guide for parallelt arbeid med IntelliJ og CLI-agenter.",
+                docsLink: "Offisiell Git Worktree-dokumentasjon",
+                box0Title: "0. Oppsett & Miljø (Start her)",
+                badgeConfig: "Konfigurasjon",
+                box0Desc: "Tilpass stier og operativsystem slik at alle kommandoer lenger ned genereres automatisk for din maskin:",
+                langLabel: "Language / Språk:",
+                osLabel: "OS / Stitype:",
+                repoNameLabel: "Navn på hovedmappe:",
+                rootPathLabel: "Rot-sti:",
+                box1Title: "1. Hvorfor bruke Worktree? (Velg scenario)",
+                badgeProblem: "Problemstilling",
+                scenA: "Scenario A: Jobbe parallelt med AI-agent",
+                scenB: "Scenario B: Prod-incident midt i uferdig arbeid",
+                scenC: "Scenario C: Sjekke ut en kollegas PR / Code Review raskt",
+                scenD: "Scenario D: Sammenligne to versjoner side om side",
+                box2Title: "2. Kommandoer: Oppsett & Opprydding",
+                badgeTerminal: "Terminal",
+                tableNewBranch: "Ny branch? (-b)",
+                tableType: "Branch-type",
+                tableName: "Branch-navn",
+                yes: "Ja",
+                no: "Nei",
+                terminalIntro: "Stå inni hovedmappen din og kjør følgende:",
+                box3Title: "3. Commit, Push & Opprydding (Bitbucket-flyt)",
+                badgeFlow: "Flyt & PR",
+                pushIntro: "Når oppgaven er ferdig, committes og publiseres koden slik:",
+                box4Title: "4. Fordeler, Teori & FAQ",
+                badgeFaq: "FAQ & Teori",
+                faq1Q: "❓ Hva er fordelene med å bruke Worktree i stedet for å klone prosjektet på nytt?",
+                thFeature: "Egenskap",
+                thClone: "Tradisjonell klon",
+                thWorktree: "Git Worktree",
+                tdDisk: "Diskplass",
+                tdCloneDisk: "Kopierer hele repoet + `.git`",
+                tdWtDisk: "Deler database (minimalt med plass)",
+                tdDeps: "Avhengigheter",
+                tdCloneDeps: "Må laste ned/synce npm, sbt, maven etc. på nytt (tar mange minutter).",
+                tdWtDeps: "Slipp ventetiden! Kan i mange tilfeller starte koden med en gang.",
+                tdSync: "Git-synk",
+                tdCloneSync: "Hver klon må hentes separat via fetch/pull.",
+                tdWtSync: "Felles database = felles oppdatering umiddelbart.",
+                faq2Q: "❓ Hvorfor bruker vi git fetch i stedet for git pull?",
+                faq2A: "git fetch laster bare ned informasjon om nye branches og endringer fra skyen (Bitbucket) inn i den lokale databasen uten å røre koden din. git pull forsøker i tillegg å flette (merge) endringene inn i branchen du står på akkurat nå, noe som kan skape uønskede konflikter midt i arbeidet ditt.",
+                faq3Q: "❓ Hvordan oppdaterer jeg worktree-mappen hvis agenten trenger det jeg koder på (eller omvendt)?",
+                faq3A: "Siden alle worktrees deler samme underliggende Git-database, kan du synkronisere på to måter:<br>• Via skyen (anbefalt): Committ og push endringene fra din mappe, og kjør git pull eller git merge origin/main i den andre mappen.<br>• Lokalt uten push: Du kan stå i f.eks. agent-mappen og merge din lokale branch direkte:",
+                faq4Q: "❓ Kan jeg ha flere IntelliJ-vinduer åpne samtidig?",
+                faq4A: "Ja! Det er hele poenget. Du åpner hovedmappen i ett IntelliJ-vindu og worktree-mappen (f.eks. agent-mappen) i et helt eget vindu. De opererer helt uavhengig av hverandre."
+            }
+        };
+
+        function changeLanguage() {
+            const lang = document.getElementById('langSelect').value;
+            const t = translations[lang];
+
+            document.getElementById('i18n-title').innerText = t.title;
+            document.getElementById('i18n-subtitle').innerText = t.subtitle;
+            document.getElementById('i18n-docs-link').innerText = t.docsLink;
+            document.getElementById('i18n-box0-title').innerText = t.box0Title;
+            document.getElementById('i18n-badge-config').innerText = t.badgeConfig;
+            document.getElementById('i18n-box0-desc').innerText = t.box0Desc;
+            document.getElementById('i18n-lang-label').innerText = t.langLabel;
+            document.getElementById('i18n-os-label').innerText = t.osLabel;
+            document.getElementById('i18n-reponame-label').innerText = t.repoNameLabel;
+            document.getElementById('i18n-rootpath-label').innerText = t.rootPathLabel;
+
+            document.getElementById('i18n-box1-title').innerText = t.box1Title;
+            document.getElementById('i18n-badge-problem').innerText = t.badgeProblem;
+            document.getElementById('i18n-scen-a').innerText = t.scenA;
+            document.getElementById('i18n-scen-b').innerText = t.scenB;
+            document.getElementById('i18n-scen-c').innerText = t.scenC;
+            document.getElementById('i18n-scen-d').innerText = t.scenD;
+
+            document.getElementById('i18n-box2-title').innerText = t.box2Title;
+            document.getElementById('i18n-badge-terminal').innerText = t.badgeTerminal;
+            document.getElementById('i18n-table-newbranch').innerText = t.tableNewBranch;
+            document.getElementById('i18n-table-type').innerText = t.tableType;
+            document.getElementById('i18n-table-name').innerText = t.tableName;
+            document.getElementById('i18n-yes').innerText = t.yes;
+            document.getElementById('i18n-no').innerText = t.no;
+            document.getElementById('i18n-terminal-intro').innerText = t.terminalIntro;
+
+            document.getElementById('i18n-box3-title').innerText = t.box3Title;
+            document.getElementById('i18n-badge-flow').innerText = t.badgeFlow;
+            document.getElementById('i18n-push-intro').innerText = t.pushIntro;
+
+            document.getElementById('i18n-box4-title').innerText = t.box4Title;
+            document.getElementById('i18n-badge-faq').innerText = t.badgeFaq;
+            document.getElementById('i18n-faq1-q').innerText = t.faq1Q;
+            document.getElementById('i18n-th-feature').innerText = t.thFeature;
+            document.getElementById('i18n-th-clone').innerText = t.thClone;
+            document.getElementById('i18n-th-worktree').innerText = t.thWorktree;
+            document.getElementById('i18n-td-disk').innerText = t.tdDisk;
+            document.getElementById('i18n-td-clone-disk').innerText = t.tdCloneDisk;
+            document.getElementById('i18n-td-wt-disk').innerText = t.tdWtDisk;
+            document.getElementById('i18n-td-deps').innerText = t.tdDeps;
+            document.getElementById('i18n-td-clone-deps').innerText = t.tdCloneDeps;
+            document.getElementById('i18n-td-wt-deps').innerHTML = t.tdWtDeps;
+            document.getElementById('i18n-td-sync').innerText = t.tdSync;
+            document.getElementById('i18n-td-clone-sync').innerText = t.tdCloneSync;
+            document.getElementById('i18n-td-wt-sync').innerText = t.tdWtSync;
+
+            document.getElementById('i18n-faq2-q').innerText = t.faq2Q;
+            document.getElementById('i18n-faq2-a').innerText = t.faq2A;
+            document.getElementById('i18n-faq3-q').innerText = t.faq3Q;
+            document.getElementById('i18n-faq3-a').innerHTML = t.faq3A;
+            document.getElementById('i18n-faq4-q').innerText = t.faq4Q;
+            document.getElementById('i18n-faq4-a').innerText = t.faq4A;
+
+            updateAllCommands();
+        }
+
+        // --- STJERNEHIMMEL SCRIPT ---
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+
+        let width, height;
+        let stars = [];
+        const numStars = 150;
+
+        function resizeCanvas() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        for (let i = 0; i < numStars; i++) {
+            stars.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                radius: Math.random() * 1.5 + 0.5,
+                alpha: Math.random(),
+                delta: (Math.random() * 0.02 + 0.005) * (Math.random() < 0.5 ? 1 : -1)
+            });
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, width, height);
+
+            ctx.fillStyle = '#ffffff';
+            stars.forEach(star => {
+                star.alpha += star.delta;
+                if (star.alpha <= 0.1 || star.alpha >= 1) {
+                    star.delta = -star.delta;
+                }
+                ctx.globalAlpha = star.alpha;
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animateStars);
+        }
+        animateStars();
+
+        function toggleNode(nodeElement, event) {
+            nodeElement.classList.toggle('active');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            changeLanguage(); // Setter engelsk som default ved start
+        });
+
+        function onOsChange() {
+            const os = document.getElementById('osType').value;
+            const rootInput = document.getElementById('rootPathInput');
+            if (os === 'windows') {
+                rootInput.value = 'c:\\dev\\repos\\';
+            } else {
+                rootInput.value = '~/dev/repos/';
+            }
+            updateAllCommands();
+        }
+
+        function onScenarioChange() {
+            const scenario = document.querySelector('input[name="scenarioType"]:checked').value;
+            const branchPrefixSelect = document.getElementById('branchPrefix');
+            const branchNameInput = document.getElementById('branchNameInput');
+
+            if (scenario === 'agent') {
+                branchPrefixSelect.value = 'agent/';
+                branchNameInput.value = 'upgrade-deps';
+            } else if (scenario === 'incident') {
+                branchPrefixSelect.value = 'hotfix/';
+                branchNameInput.value = 'fix-prod-bug';
+            } else if (scenario === 'review') {
+                branchPrefixSelect.value = 'feature/';
+                branchNameInput.value = 'kollega-pr';
+            } else if (scenario === 'compare') {
+                branchPrefixSelect.value = 'feature/';
+                branchNameInput.value = 'eksperiment';
+            }
+
+            updateAllCommands();
+        }
+
+        function getPaths() {
+            let root = document.getElementById('rootPathInput').value.trim();
+            let repo = document.getElementById('repoNameInput').value.trim() || 'git-worktree';
+            let os = document.getElementById('osType').value;
+            let scenario = document.querySelector('input[name="scenarioType"]:checked').value;
+
+            let suffix = '-agent';
+            if (scenario === 'incident') suffix = '-hotfix';
+            else if (scenario === 'review') suffix = '-review';
+            else if (scenario === 'compare') suffix = '-test';
+
+            if (os === 'windows') {
+                root = root.replace(/[\/]/g, '\\');
+                root = root.replace(/([^:][\\])[\\]+/g, '$1');
+                if (!root.endsWith('\\')) root += '\\';
+            } else {
+                root = root.replace(/[\\]/g, '/');
+                root = root.replace(/[\/][\/]+/g, '/');
+                if (!root.endsWith('/')) root += '/';
+            }
+
+            const fullRepoPath = root + repo;
+            const targetRepoPath = root + repo + suffix;
+
+            return { root, repo, fullRepoPath, targetRepoPath, suffix, os, scenario };
+        }
+
+        function updateScenarioDescription(paths) {
+            const descContainer = document.getElementById('scenario-desc');
+            const lang = document.getElementById('langSelect').value;
+
+            if (paths.scenario === 'agent') {
+                descContainer.innerHTML = lang === 'en' ? `
+                    Let a CLI agent work on a large task in a separate folder while you code in IntelliJ, without crashing into each other or duplicating downloads. Worktrees are placed as <strong>sibling folders</strong> on disk using <code>../</code>, sharing the same underlying <code>.git</code> database:
+                    <pre>${paths.root}
+├── ${paths.repo}/        (You in IntelliJ - main)
+└── ${paths.repo}${paths.suffix}/  (CLI agent - separate branch)</pre>
+                ` : `
+                    Du vil la en CLI-agent jobbe med en stor oppgave i en egen mappe mens du koder i IntelliJ, uten at dere krasjer i hverandre eller dupliserer nedlastinger. Worktrees plasseres som <strong>søsken-mapper</strong> på disken ved hjelp av <code>../</code>, og deler samme underliggende <code>.git</code>-database:
+                    <pre>${paths.root}
+├── ${paths.repo}/        (Du i IntelliJ - main)
+└── ${paths.repo}${paths.suffix}/  (CLI-agent - egen branch)</pre>
+                `;
+            } else if (paths.scenario === 'incident') {
+                descContainer.innerHTML = lang === 'en' ? `
+                    <strong>Unfinished work + Production crisis!</strong> You are in the middle of an unfinished feature in your main folder with uncommitted changes. Suddenly, a production incident occurs!<br><br>
+                    <strong>Bad choices:</strong> <code>git stash</code> (risk of corruption or forgetting it) or pushing messy code.<br>
+                    <strong>Worktree solution:</strong> Spin up a clean worktree instantly right from <code>main</code>, fix the issue, deploy, and close the folder. Your main folder remains untouched!
+                    <pre>${paths.root}
+├── ${paths.repo}/         (Your unfinished work - untouched!)
+└── ${paths.repo}${paths.suffix}/  (Clean folder to fix the production bug immediately)</pre>
+                ` : `
+                    <strong>Uferdig arbeid + Prod-krise!</strong> Du sitter midt i en uferdig feature i hovedmappen din med ulagrede/ucommittes endringer. Plutselig smeller det i produksjon (incident)!<br><br>
+                    <strong>Dårlige valg:</strong> <code>git stash</code> (risiko for rot/korrupsjon eller at du glemmer det) eller å pushe halvgjort rotete kode.<br>
+                    <strong>Løsningen med Worktree:</strong> Start et rent worktree ved siden av på et brøkdel av et sekund rett fra <code>main</code>, fiks feilen, deploy, og lukk mappen. Hovedmappen din forblir urørt!
+                    <pre>${paths.root}
+├── ${paths.repo}/         (Ditt uferdigstilte arbeid - urørt!)
+└── ${paths.repo}${paths.suffix}/  (Ren mappe for å fikse prod-feilen med en gang)</pre>
+                `;
+            } else if (paths.scenario === 'review') {
+                descContainer.innerHTML = lang === 'en' ? `
+                    <strong>Quick Code Review:</strong> A colleague asks you to check out a PR locally to test it. Instead of switching branches in your own IntelliJ folder and risking workspace clutter, spin up a separate worktree for your colleague's branch instantly.<br><br>
+                    Test safely in a separate IDE instance, and delete the folder when done!
+                    <pre>${paths.root}
+├── ${paths.repo}/        (Your own setup)
+└── ${paths.repo}${paths.suffix}/ (Colleague's branch - isolated)</pre>
+                ` : `
+                    <strong>Rask Code Review:</strong> En kollega ber deg sjekke ut en PR lokalt for å teste den. I stedet for å bytte branch i din egen IntelliJ-mappe og risikere rot i din egen arbeidsflate, spinner du opp et eget worktree for kollegaens branch på et sekund i en egen mappe.<br><br>
+                    Test i fred i en egen IDE-instans, og slett mappen når du er ferdig!
+                    <pre>${paths.root}
+├── ${paths.repo}/        (Ditt eget oppsett)
+└── ${paths.repo}${paths.suffix}/ (Kollegaens branch - isolert)</pre>
+                `;
+            } else {
+                descContainer.innerHTML = lang === 'en' ? `
+                    <strong>Side-by-side comparison:</strong> You want to see how a function was written in <code>main</code> vs. an experimental branch, running them on different ports simultaneously for direct behavioral comparison.<br><br>
+                    With two folders open simultaneously you have full control without stashing or juggling branches back and forth.
+                    <pre>${paths.root}
+├── ${paths.repo}/      (Port 3000 - old version)
+└── ${paths.repo}${paths.suffix}/ (Port 3001 - new version)</pre>
+                ` : `
+                    <strong>Side-om-side sammenligning:</strong> Du lurer på hvordan en funksjon var skrevet i <code>main</code> vs. en eksperimentell branch, og vil kjøre dem på forskjellige porter samtidig for å sammenligne oppførsel direkte.<br><br>
+                    Med to mapper åpne samtidig har du full kontroll uten å stashe eller sjonglere branches frem og tilbake.
+                    <pre>${paths.root}
+├── ${paths.repo}/      (Port 3000 - gammel versjon)
+└── ${paths.repo}${paths.suffix}/ (Port 3001 - ny versjon)</pre>
+                `;
+            }
+        }
+
+        function updateAllCommands() {
+            const paths = getPaths();
+            updateScenarioDescription(paths);
+            const lang = document.getElementById('langSelect').value;
+
+            const isNew = document.querySelector('input[name="isNewBranch"]:checked').value === 'yes';
+            const prefix = document.getElementById('branchPrefix').value;
+            const name = document.getElementById('branchNameInput').value || 'min-oppgave';
+            const fullBranch = (prefix === 'custom') ? name : (prefix + name);
+
+            const setupBlock = document.getElementById('command-block-setup');
+            const listBlock = document.getElementById('command-block-list');
+            const pushBlock = document.getElementById('command-block-push');
+
+            if (isNew) {
+                setupBlock.innerText = lang === 'en' ? 
+`# 1. Enter main folder and update remote tracking
+cd ${paths.fullRepoPath}
+git fetch
+
+# 2. Create worktree and NEW branch with specified name (-b)
+git worktree add ../${paths.repo}${paths.suffix} -b ${fullBranch}` :
+`# 1. Gå inn i hovedmappen og oppdater remote-oversikten
+cd ${paths.fullRepoPath}
+git fetch
+
+# 2. Opprett worktree og NY branch med ønsket navn (-b)
+git worktree add ../${paths.repo}${paths.suffix} -b ${fullBranch}`;
+
+                pushBlock.innerText = lang === 'en' ?
+`# 1. Go to the worktree folder (if not already there)
+cd ${paths.targetRepoPath}
+
+# 2. Stage and commit changes
+git add .
+git commit -m "feat: worktree task completed"
+
+# 3. Push the branch (first time with -u for upstream)
+git push -u origin ${fullBranch}
+
+# 4. Go to Bitbucket and create a Pull Request (PR)
+
+# 5. Once PR is merged: Go back to main folder and remove worktree
+cd ${paths.fullRepoPath}
+git worktree remove ../${paths.repo}${paths.suffix}` :
+`# 1. Gå til worktree-mappen (hvis du ikke allerede er der)
+cd ${paths.targetRepoPath}
+
+# 2. Stage og committ endringene
+git add .
+git commit -m "feat: utført arbeid i worktree"
+
+# 3. Push branchen (første gang med -u for upstream)
+git push -u origin ${fullBranch}
+
+# 4. Gå inn i Bitbucket og opprett Pull Request (PR)
+
+# 5. Når PR er merget: Gå tilbake til hovedmappen og fjern worktree-et
+cd ${paths.fullRepoPath}
+git worktree remove ../${paths.repo}${paths.suffix}`;
+
+            } else {
+                setupBlock.innerText = lang === 'en' ?
+`# 1. Enter main folder and update remote tracking
+cd ${paths.fullRepoPath}
+git fetch
+
+# 2. Create worktree with an EXISTING branch (without -b)
+git worktree add ../${paths.repo}${paths.suffix} ${fullBranch}` :
+`# 1. Gå inn i hovedmappen og oppdater remote-oversikten
+cd ${paths.fullRepoPath}
+git fetch
+
+# 2. Opprett worktree med en EKSISTERENDE branch (uten -b)
+git worktree add ../${paths.repo}${paths.suffix} ${fullBranch}`;
+
+                pushBlock.innerText = lang === 'en' ?
+`# 1. Go to the worktree folder (if not already there)
+cd ${paths.targetRepoPath}
+
+# 2. Stage and commit changes
+git add .
+git commit -m "feat: changes made in worktree"
+
+# 3. Push the branch (first time with -u for upstream)
+git push -u origin ${fullBranch}
+
+# 4. Go to Bitbucket and create a Pull Request (PR)
+
+# 5. Once PR is merged: Go back to main folder and remove worktree
+cd ${paths.fullRepoPath}
+git worktree remove ../${paths.repo}${paths.suffix}` :
+`# 1. Gå til worktree-mappen (hvis du ikke allerede er der)
+cd ${paths.targetRepoPath}
+
+# 2. Stage og committ endringene
+git add .
+git commit -m "feat: endringer utført i worktree"
+
+# 3. Push branchen (første gang med -u for upstream)
+git push -u origin ${fullBranch}
+
+# 4. Gå inn i Bitbucket og opprett Pull Request (PR)
+
+# 5. Når PR er merget: Gå tilbake til hovedmappen og fjern worktree-et
+cd ${paths.fullRepoPath}
+git worktree remove ../${paths.repo}${paths.suffix}`;
+            }
+
+            listBlock.innerText = lang === 'en' ? 
+`# 3. View active worktrees
+git worktree list` : 
+`# 3. Se aktive worktrees
+git worktree list`;
+        }
+    </script>
+</body>
+</html>
