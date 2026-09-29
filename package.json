@@ -1,0 +1,10 @@
+{
+  "name": "git-worktree",
+  "version": "1.0.0",
+  "description": "Interactive guide and dynamic command generator for Git Worktree workflows",
+  "scripts": {
+    "test": "node --test"
+  },
+  "author": "Olav Alexander Mjelde",
+  "license": "CC-BY-4.0"
+}

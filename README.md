@@ -2,6 +2,7 @@
 
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 [![Live Preview](https://img.shields.io/badge/Live_Demo-GitHub_Pages-38bdf8?logo=github)](https://olavxxx.github.io/git-worktree/)
+[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen?logo=node.js)](test.js)
 
 An interactive visual guide and dynamic command generator for parallel workflows using **Git Worktree**, **AI CLI agents** (e.g., Claude Code, Gemini CLI, Agy, Cursor), and **IDEs** (IntelliJ IDEA, VS Code).
 
@@ -46,6 +47,25 @@ No installation, build tools, or `node_modules` required:
    - **Windows:** Double-click `index.html` or run `start index.html`
    - **macOS:** `open index.html`
    - **Linux:** `xdg-open index.html`
+
+---
+
+## 🧪 Automated Testing
+
+The repository includes a comprehensive, zero-dependency test suite that validates HTML structure, JavaScript compilation, 100% translation key coverage (English and Norwegian), XSS sanitization, path normalization logic, accessibility attributes, and copy-button bindings.
+
+Run tests using Node.js (v18+):
+
+```bash
+# Run tests directly with Node:
+node test.js
+
+# Or using the built-in test runner:
+node --test
+
+# Or using npm:
+npm test
+```
 
 ---
 
