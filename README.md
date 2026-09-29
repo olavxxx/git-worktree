@@ -3,76 +3,79 @@
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC_BY_4.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 [![Live Preview](https://img.shields.io/badge/Live_Demo-GitHub_Pages-38bdf8?logo=github)](https://olavxxx.github.io/git-worktree/)
 
-En interaktiv guide og dynamisk kommandogenerator for parallelt arbeid med **Git Worktree**, **AI-agenter** (f.eks. Claude Code, Gemini CLI, Agy, Cursor) og **IDE-er** (IntelliJ, VS Code).
+An interactive visual guide and dynamic command generator for parallel workflows using **Git Worktree**, **AI CLI agents** (e.g., Claude Code, Gemini CLI, Agy, Cursor), and **IDEs** (IntelliJ IDEA, VS Code).
 
 ---
 
-## 🌐 Live Forhåndsvisning (GitHub Pages)
+## 🌐 Live Preview (GitHub Pages)
 
-👉 **[Prøv den interaktive guiden her](https://olavxxx.github.io/git-worktree/)**
+👉 **[Launch the Interactive Guide](https://olavxxx.github.io/git-worktree/)**
 
 URL: `https://olavxxx.github.io/git-worktree/`
 
 ---
 
-## 💡 Hva er dette?
+## 💡 What is this?
 
-Når du jobber sammen med autonome AI-agenter på kommandolinjen eller håndterer uforutsette hendelser i produksjon, er det upraktisk å stadig bytte brancher, stashe kode eller klone hele repoet på nytt.
+When collaborating with autonomous AI agents in terminal sessions or responding to unexpected production incidents, constantly switching branches, stashing half-baked code, or re-cloning multi-gigabyte repositories creates unnecessary friction and wait time.
 
-Med **Git Worktree** deler alle instanser samme lokale `.git`-database på disken. Dette verktøyet hjelper deg å:
-1. **Generere skreddersydde terminal-kommandoer** basert på ditt OS (Windows eller macOS/Linux), din katalogstruktur og branch-navn.
-2. **Forstå 4 vanlige scenarioer**:
-   - **Scenario A: Parallelt arbeid med AI-agent** — La agenten jobbe i en egen mappe mens du fortsetter å kode i IntelliJ uten avbrudd.
-   - **Scenario B: Prod-incident midt i uferdig arbeid** — Hopp rett inn og fiks en feil direkte fra `main` uten `git stash` eller fare for rot.
-   - **Scenario C: Rask Code Review av kollegas PR** — Test en PR lokalt i et isolert vindu og slett mappen når du er ferdig.
-   - **Scenario D: Side-om-side sammenligning** — Kjør to versjoner samtidig på forskjellige porter.
-3. **Komplett livssyklus (Setup &rarr; Push &rarr; Cleanup)** — Steg-for-steg kommandoer for oppretting, pushing til remote (Bitbucket/GitHub), og fjerning av worktree etter merge.
-4. **Tospråklig (Bilingual)** — Full støtte for både norsk og engelsk med ett klikk.
+With **Git Worktree**, multiple working directories are checked out simultaneously from the same local `.git` repository database on disk. This interactive cheatsheet helps you:
+
+1. **Generate Tailored Terminal Commands** dynamically based on your operating system (Windows CMD/PowerShell/Git Bash or macOS/Linux), your local directory paths, and custom branch names.
+2. **Explore 4 Common Real-World Scenarios**:
+   - **Scenario A: Parallel Work with an AI Agent** — Delegate heavy tasks to a CLI agent in a dedicated sibling directory while you continue writing code uninterrupted in IntelliJ.
+   - **Scenario B: Production Incident During Unfinished Work** — Instantly spin up a clean worktree directly from `main` to patch and release a hotfix without stashing or risking messy uncommitted code.
+   - **Scenario C: Quick Code Review of a Colleague's PR** — Test and inspect a colleague's pull request in an isolated environment without disturbing your active workspace.
+   - **Scenario D: Side-by-Side Version Comparison** — Run two branches simultaneously on different ports (e.g., 3000 vs. 3001) for direct behavioral comparison.
+3. **Full Lifecycle Flow (Setup &rarr; Push &rarr; Cleanup)** — Step-by-step guidance from branch creation, remote sync (`git fetch`), committing and pushing to remote (GitHub/Bitbucket), to safe worktree removal after pull request merge.
+4. **Bilingual Support (English & Norwegian)** — Full instant language toggle between English and Norwegian.
+5. **Zero Dependencies** — A lightweight, standalone web app contained in a single HTML file with custom CSS, dynamic starfield canvas animations, and reactive vanilla JavaScript.
 
 ---
 
-## 🚀 Kjøre lokalt
+## 🚀 Running Locally
 
-Prosjektet er en ren, frittstående HTML-applikasjon uten avhengigheter, npm-pakker eller byggetrinn:
+No installation, build tools, or `node_modules` required:
 
-1. Klon eller last ned repoet:
+1. Clone or download the repository:
    ```bash
    git clone https://github.com/olavxxx/git-worktree.git
    cd git-worktree
    ```
-2. Åpne `index.html` direkte i en nettleser:
-   - **Windows:** Dobbeltklikk på `index.html` eller kjør `start index.html`
+2. Open `index.html` in your favorite web browser:
+   - **Windows:** Double-click `index.html` or run `start index.html`
    - **macOS:** `open index.html`
    - **Linux:** `xdg-open index.html`
 
 ---
 
-## ⚙️ Sette opp GitHub Pages
+## ⚙️ Enabling GitHub Pages
 
-For å aktivere GitHub Pages på dette repoet:
-1. Gå til repoet på GitHub: [github.com/olavxxx/git-worktree](https://github.com/olavxxx/git-worktree)
-2. Klikk på **Settings** &rarr; **Pages** (i venstremenyen under *Code and automation*).
+To activate GitHub Pages for your own fork or this repository:
+
+1. Navigate to the repository on GitHub: [github.com/olavxxx/git-worktree](https://github.com/olavxxx/git-worktree)
+2. Go to **Settings** &rarr; **Pages** (under *Code and automation* in the left sidebar).
 3. Under **Build and deployment**:
-   - **Source**: Velg `Deploy from a branch`
-   - **Branch**: Velg `main` og mappen `/ (root)`
-4. Klikk **Save**.
-5. Etter ca. 1 minutt er siden tilgjengelig på:  
+   - **Source**: Select `Deploy from a branch`
+   - **Branch**: Select `main` and root directory `/ (root)`
+4. Click **Save**.
+5. Within 1–2 minutes, your site will be live at:  
    🔗 **`https://olavxxx.github.io/git-worktree/`**
 
 ---
 
-## 📄 Lisens & Kreditt
+## 📄 License & Attribution
 
-Dette verket er lisensiert under **[Creative Commons Attribution 4.0 International (CC BY 4.0)](LICENSE)**.
+This project is licensed under the **[Creative Commons Attribution 4.0 International Public License (CC BY 4.0)](LICENSE)**.
 
-### Hva betyr dette?
-Du står fritt til å:
-- **Dele** — kopiere og distribuere materialet i hvilket som helst medium eller format.
-- **Bearbeide** — remikse, forandre og bygge videre på materialet til ethvert formål, også kommersielt.
+### What does this mean?
+You are free to:
+- **Share** — copy and redistribute the material in any medium or format.
+- **Adapt** — remix, transform, and build upon the material for any purpose, even commercially.
 
-**Vilkår:**
-- **Navngivelse (Attribution / Creds):** Du må gi passende kreditt til opprinnelig opphavsperson (**Olav Alexander Mjelde**), oppgi en lenke til lisensen, og indikere om det er gjort endringer.
+**Under the following condition:**
+- **Attribution:** You must give appropriate credit to the author (**Olav Alexander Mjelde**), provide a link to the license, and indicate if changes were made.
 
-**Opphavsperson:**  
+**Author:**  
 - **Olav Alexander Mjelde**  
-- [LinkedIn-profil](https://www.linkedin.com/in/olav-alexander-mjelde-1256a822/)
+- [LinkedIn Profile](https://www.linkedin.com/in/olav-alexander-mjelde-1256a822/)
